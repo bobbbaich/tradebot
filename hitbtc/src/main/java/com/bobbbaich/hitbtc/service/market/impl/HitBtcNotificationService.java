@@ -1,6 +1,6 @@
 package com.bobbbaich.hitbtc.service.market.impl;
 
-import com.bobbbaich.hitbtc.service.market.MarketService;
+import com.bobbbaich.hitbtc.service.market.NotificationService;
 import com.bobbbaich.hitbtc.service.market.RequestBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,39 +16,43 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class HitBtcMarketService implements MarketService {
+public class HitBtcNotificationService implements NotificationService {
+
+
     private JsonRpcClient client;
 
     @Override
-    public Response<JsonElement> getCurrency(String currency) throws IOException {
+    public Response<JsonElement> subscribeTicker(String symbol) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getCurrency")
-                .withParam("currency", currency)
-                .build();
-        return client.sendRequest(request);
-    }
-
-    @Override
-    public Response<JsonElement> getCurrencies() throws IOException {
-        Request<JsonObject> request = new RequestBuilder()
-                .method("getCurrencies")
-                .build();
-        return client.sendRequest(request);
-    }
-
-    @Override
-    public Response<JsonElement> getSymbol(String symbol) throws IOException {
-        Request<JsonObject> request = new RequestBuilder()
-                .method("getSymbol")
+                .method("subscribeTicker")
                 .withParam("symbol", symbol)
                 .build();
         return client.sendRequest(request);
     }
 
     @Override
-    public Response<JsonElement> getSymbols() throws IOException {
+    public Response<JsonElement> unsubscribeTicker(String symbol) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getSymbols")
+                .method("unsubscribeTicker")
+                .withParam("symbol", symbol)
+                .build();
+        return client.sendRequest(request);
+    }
+
+    @Override
+    public Response<JsonElement> subscribeCandles(String symbol) throws IOException {
+        Request<JsonObject> request = new RequestBuilder()
+                .method("subscribeCandles")
+                .withParam("symbol", symbol)
+                .build();
+        return client.sendRequest(request);
+    }
+
+    @Override
+    public Response<JsonElement> unsubscribeCandles(String symbol) throws IOException {
+        Request<JsonObject> request = new RequestBuilder()
+                .method("unsubscribeCandles")
+                .withParam("symbol", symbol)
                 .build();
         return client.sendRequest(request);
     }

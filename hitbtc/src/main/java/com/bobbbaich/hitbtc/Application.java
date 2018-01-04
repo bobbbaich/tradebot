@@ -1,7 +1,7 @@
 package com.bobbbaich.hitbtc;
 
 import com.bobbbaich.hitbtc.service.market.MarketService;
-import com.bobbbaich.hitbtc.service.market.NotificationMarketService;
+import com.bobbbaich.hitbtc.service.market.NotificationService;
 import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.message.Response;
@@ -14,19 +14,22 @@ import java.io.IOException;
 @SpringBootApplication
 @Slf4j
 public class Application {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         ConfigurableApplicationContext run = SpringApplication.run(Application.class);
-        MarketService marketService = run.getBean(MarketService.class);
-        NotificationMarketService notificationMarketService = run.getBean(NotificationMarketService.class);
+        NotificationService ns = run.getBean(NotificationService.class);
 
+        Response<JsonElement> subscribeCandles = ns.subscribeCandles("ETHBTC");
+        System.out.println("Thread.sleep(10000);");
+        Thread.sleep(10000);
+        Response<JsonElement> unsubscribeCandles = ns.unsubscribeCandles("ETHBTC");
+        System.out.println("Thread.sleep(20000);");
 
-        Response<JsonElement> subscribeTicker = marketService.subscribeTicker("ETHBTC");
-        log.debug("{}", subscribeTicker.getResult());
+        Thread.sleep(20000);
 
-//        JsonElement tickers = notificationMarketService.ticker();
-//        log.debug("{}", tickers);
+        Response<JsonElement> subscribeCandles2 = ns.subscribeCandles("ETHUSD");
+        System.out.println("Thread.sleep(10000);");
+        Thread.sleep(10000);
+        Response<JsonElement> unsubscribeCandles2 = ns.unsubscribeCandles("ETHUSD");
 
-        Response<JsonElement> unsubscribeTicker = marketService.unsubscribeTicker("ETHBTC");
-        log.debug("{}", unsubscribeTicker.getResult());
     }
 }

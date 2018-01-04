@@ -17,6 +17,17 @@
 
 package org.kurento.jsonrpc;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.thoughtworks.paranamer.AnnotationParanamer;
+import com.thoughtworks.paranamer.Paranamer;
+import org.kurento.jsonrpc.message.Request;
+import org.kurento.jsonrpc.message.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,169 +37,160 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.kurento.jsonrpc.message.Request;
-import org.kurento.jsonrpc.message.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.thoughtworks.paranamer.AnnotationParanamer;
-import com.thoughtworks.paranamer.Paranamer;
-
 public class JsonRpcAndJavaMethodManager {
 
-  private static final Logger log = LoggerFactory.getLogger(JsonRpcAndJavaMethodManager.class);
+    private static final Logger log = LoggerFactory.getLogger(JsonRpcAndJavaMethodManager.class);
 
-  private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
-  private Paranamer paranamer = new AnnotationParanamer();
+    private Paranamer paranamer = new AnnotationParanamer();
 
-  public void executeMethod(Method m, Object object, Transaction transaction,
-      Request<JsonObject> request) throws IOException {
+    public void executeMethod(Method m, Object object, Transaction transaction,
+                              Request<JsonObject> request) throws IOException {
 
-    try {
+        try {
 
-      Response<JsonElement> response =
-          execJavaMethod(transaction.getSession(), object, m, transaction, request);
+            Response<JsonElement> response =
+                    execJavaMethod(transaction.getSession(), object, m, transaction, request);
 
-      if (response != null) {
-        response.setId(request.getId());
-        transaction.sendResponseObject(response);
-      } else {
-        transaction.sendVoidResponse();
-      }
+            if (response != null) {
+                response.setId(request.getId());
+                transaction.sendResponseObject(response);
+            } else {
+                transaction.sendVoidResponse();
+            }
 
-    } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
 
-      if (e.getCause() instanceof JsonRpcErrorException) {
+            if (e.getCause() instanceof JsonRpcErrorException) {
 
-        JsonRpcErrorException ex = (JsonRpcErrorException) e.getCause();
+                JsonRpcErrorException ex = (JsonRpcErrorException) e.getCause();
 
-        transaction.sendError(ex.getError());
+                transaction.sendError(ex.getError());
 
-      } else {
+            } else {
 
-        log.error(
-            "Exception executing request " + request + ": " + e.getCause().getLocalizedMessage(),
-            e.getCause());
-        transaction.sendError(e.getCause());
-      }
+                log.error(
+                        "Exception executing request " + request + ": " + e.getCause().getLocalizedMessage(),
+                        e.getCause());
+                transaction.sendError(e.getCause());
+            }
 
-    } catch (Exception e) {
-      log.error("Exception processing request " + request, e);
-      transaction.sendError(e);
+        } catch (Exception e) {
+            log.error("Exception processing request " + request, e);
+            transaction.sendError(e);
+        }
+
     }
 
-  }
+    private Response<JsonElement> execJavaMethod(Session session, Object object, Method m,
+                                                 Transaction transaction, Request<JsonObject> request)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-  private Response<JsonElement> execJavaMethod(Session session, Object object, Method m,
-      Transaction transaction, Request<JsonObject> request)
-          throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Object[] values = calculateParamValues(session, m, request);
 
-    Object[] values = calculateParamValues(session, m, request);
+        Object result = m.invoke(object, values);
 
-    Object result = m.invoke(object, values);
-
-    if (result == null) {
-      return null;
-    } else {
-      return new Response<>(null, gson.toJsonTree(result));
-    }
-  }
-
-  private Object[] calculateParamValues(Session session, Method m, Request<JsonObject> request) {
-
-    JsonObject params = request.getParams();
-
-    String[] parameterNames = paranamer.lookupParameterNames(m, true);
-    Type[] parameterTypes = m.getGenericParameterTypes();
-
-    Object[] values = new Object[parameterTypes.length];
-    for (int i = 0; i < parameterTypes.length; i++) {
-
-      values[i] = getValueFromParam(session, m, params, parameterNames[i], parameterTypes[i]);
-    }
-
-    if (log.isInfoEnabled()) {
-      StringBuilder sb = new StringBuilder("[");
-      for (int i = 0; i < parameterNames.length; i++) {
-        sb.append(parameterNames[i] + "(" + parameterTypes[i] + ")=" + values[i] + ",");
-      }
-      sb.append("]");
-
-      log.debug("Executing method {} with params {}", m.getName(), params);
-    }
-    return values;
-  }
-
-  private Object getValueFromParam(Session session, Method m, JsonObject params,
-      String parameterName, Type genericType) {
-
-    if (genericType instanceof Class) {
-
-      Class<?> type = (Class<?>) genericType;
-
-      if (Session.class.isAssignableFrom(type)) {
-        return session;
-      } else {
-
-        // TODO Allow more types
-        JsonElement jsonElement = params.get(parameterName);
-
-        if (jsonElement != null) {
-          return getAsJavaType(type, jsonElement);
+        if (result == null) {
+            return null;
         } else {
-          // TODO Fail in this case
-          if (type == boolean.class) {
-            return false;
-          } else if (type == int.class) {
-            return 0;
-          }
+            return new Response<>(null, gson.toJsonTree(result));
         }
-      }
-
-    } else {
-
-      if (genericType instanceof ParameterizedType) {
-
-        ParameterizedType genericMap = (ParameterizedType) genericType;
-
-        if (Map.class.isAssignableFrom((Class<?>) genericMap.getRawType())
-            && (genericMap.getActualTypeArguments()[0] == String.class)
-            && (genericMap.getActualTypeArguments()[1] == String.class)) {
-
-          Map<String, String> returnParams = new HashMap<String, String>();
-          for (Entry<String, JsonElement> param : params.entrySet()) {
-            String valueStr =
-                !param.getValue().isJsonNull() ? param.getValue().getAsString() : null;
-            returnParams.put(param.getKey(), valueStr);
-          }
-
-          return returnParams;
-        }
-      }
     }
 
-    return null;
-  }
+    private Object[] calculateParamValues(Session session, Method m, Request<JsonObject> request) {
 
-  private Object getAsJavaType(Class<?> type, JsonElement jsonElement) {
-    if (jsonElement.isJsonNull()) {
-      return null;
-    } else if (type == String.class) {
-      return jsonElement.getClass().equals(JsonObject.class) ? jsonElement.toString()
-          : jsonElement.getAsString();
-    } else if (type == boolean.class) {
-      return jsonElement.getAsBoolean();
-    } else if (type.isEnum()) {
-      return gson.fromJson(jsonElement, type);
-    } else if (type == int.class) {
-      return jsonElement.getAsInt();
-    } else {
-      return null;
+        JsonObject params = request.getParams();
+
+        String[] parameterNames = paranamer.lookupParameterNames(m, true);
+        Type[] parameterTypes = m.getGenericParameterTypes();
+
+        Object[] values = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+
+            values[i] = getValueFromParam(session, m, params, parameterNames[i], parameterTypes[i]);
+        }
+
+        if (log.isInfoEnabled()) {
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < parameterNames.length; i++) {
+                sb.append(parameterNames[i] + "(" + parameterTypes[i] + ")=" + values[i] + ",");
+            }
+            sb.append("]");
+
+            log.debug("Executing method {} with params {}", m.getName(), params);
+        }
+        return values;
     }
-  }
+
+    private Object getValueFromParam(Session session, Method m, JsonObject params,
+                                     String parameterName, Type genericType) {
+
+        if (genericType instanceof Class) {
+
+            Class<?> type = (Class<?>) genericType;
+
+            if (Session.class.isAssignableFrom(type)) {
+                return session;
+            } else {
+
+                // TODO Allow more types
+                JsonElement jsonElement = params.get(parameterName);
+
+                if (jsonElement != null) {
+                    return getAsJavaType(type, jsonElement);
+                } else {
+                    // TODO Fail in this case
+                    if (type == boolean.class) {
+                        return false;
+                    } else if (type == int.class) {
+                        return 0;
+                    }
+                }
+            }
+
+        } else {
+
+            if (genericType instanceof ParameterizedType) {
+
+                ParameterizedType genericMap = (ParameterizedType) genericType;
+
+                if (Map.class.isAssignableFrom((Class<?>) genericMap.getRawType())
+                        && (genericMap.getActualTypeArguments()[0] == String.class)
+                        && (genericMap.getActualTypeArguments()[1] == String.class)) {
+
+                    Map<String, String> returnParams = new HashMap<String, String>();
+                    for (Entry<String, JsonElement> param : params.entrySet()) {
+                        String valueStr =
+                                !param.getValue().isJsonNull() ? param.getValue().getAsString() : null;
+                        returnParams.put(param.getKey(), valueStr);
+                    }
+
+                    return returnParams;
+                } else if (Request.class.isAssignableFrom((Class<?>) genericMap.getRawType())
+                        && (genericMap.getActualTypeArguments()[0] == JsonObject.class)) {
+                    return new Request<>(null, params);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Object getAsJavaType(Class<?> type, JsonElement jsonElement) {
+        if (jsonElement.isJsonNull()) {
+            return null;
+        } else if (type == String.class) {
+            return jsonElement.getClass().equals(JsonObject.class) ? jsonElement.toString()
+                    : jsonElement.getAsString();
+        } else if (type == boolean.class) {
+            return jsonElement.getAsBoolean();
+        } else if (type.isEnum()) {
+            return gson.fromJson(jsonElement, type);
+        } else if (type == int.class) {
+            return jsonElement.getAsInt();
+        } else {
+            return null;
+        }
+    }
 }

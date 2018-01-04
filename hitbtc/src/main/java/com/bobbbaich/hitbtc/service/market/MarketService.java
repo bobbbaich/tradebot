@@ -13,8 +13,4 @@ public interface MarketService {
     Response<JsonElement> getSymbol(String symbol) throws IOException;
 
     Response<JsonElement> getSymbols() throws IOException;
-
-    Response<JsonElement> subscribeTicker(String symbol) throws IOException;
-
-    Response<JsonElement> unsubscribeTicker(String symbol) throws IOException;
 }
