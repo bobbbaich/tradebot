@@ -6,6 +6,7 @@ import org.kurento.jsonrpc.JsonRpcMethod;
 import org.kurento.jsonrpc.Session;
 import org.kurento.jsonrpc.TypeDefaultJsonRpcHandler;
 import org.kurento.jsonrpc.message.Request;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Named;
@@ -13,6 +14,9 @@ import javax.inject.Named;
 @Slf4j
 @Service
 public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
+
+    private CustomMessageSender messageSender;
+
     @JsonRpcMethod
     public synchronized void snapshotCandles(@Named Session session, @Named("data") Request<JsonObject> data) {
         log.debug("snapshotCandles");
@@ -27,7 +31,12 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
 
     @JsonRpcMethod
     public synchronized void ticker(@Named Session session, @Named("data") Request<JsonObject> data) {
-        log.debug("ticker");
-        log.debug("data: {}", data.getParams());
+        log.debug("@JsonRpcMethod -> 'ticker' - data: {}", data.getParams());
+        messageSender.send(data);
+    }
+
+    @Autowired
+    public void setMessageSender(CustomMessageSender messageSender) {
+        this.messageSender = messageSender;
     }
 }
