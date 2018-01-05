@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static com.bobbbaich.hitbtc.service.market.impl.HitBtcConstant.*;
+
 @Slf4j
 @Service
 public class HitBtcNotificationService implements NotificationService {
@@ -21,8 +23,8 @@ public class HitBtcNotificationService implements NotificationService {
     @Override
     public Response<JsonElement> subscribeTicker(String symbol) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("subscribeTicker")
-                .withParam("symbol", symbol)
+                .method(METHOD_SUBSCRIBE_TICKER)
+                .withParam(PARAM_SYMBOL, symbol)
                 .build();
         return client.sendRequest(request);
     }
@@ -30,8 +32,8 @@ public class HitBtcNotificationService implements NotificationService {
     @Override
     public Response<JsonElement> unsubscribeTicker(String symbol) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("unsubscribeTicker")
-                .withParam("symbol", symbol)
+                .method(METHOD_UNSUBSCRIBE_TICKER)
+                .withParam(PARAM_SYMBOL, symbol)
                 .build();
         return client.sendRequest(request);
     }
@@ -39,9 +41,9 @@ public class HitBtcNotificationService implements NotificationService {
     @Override
     public Response<JsonElement> subscribeCandles(String symbol, String period) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("subscribeCandles")
-                .withParam("symbol", symbol)
-                .withParam("period", period)
+                .method(METHOD_SUBSCRIBE_CANDLES)
+                .withParam(PARAM_SYMBOL, symbol)
+                .withParam(PARAM_PERIOD, period)
                 .build();
         return client.sendRequest(request);
     }
@@ -49,9 +51,9 @@ public class HitBtcNotificationService implements NotificationService {
     @Override
     public Response<JsonElement> unsubscribeCandles(String symbol, String period) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("unsubscribeCandles")
-                .withParam("symbol", symbol)
-                .withParam("period", period)
+                .method(METHOD_UNSUBSCRIBE_CANDLES)
+                .withParam(PARAM_SYMBOL, symbol)
+                .withParam(PARAM_PERIOD, period)
                 .build();
         return client.sendRequest(request);
     }

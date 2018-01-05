@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static com.bobbbaich.hitbtc.service.market.impl.HitBtcConstant.*;
+
 @Slf4j
 @Service
 public class HitBtcMarketService implements MarketService {
@@ -21,8 +23,8 @@ public class HitBtcMarketService implements MarketService {
     @Override
     public Response<JsonElement> getCurrency(String currency) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getCurrency")
-                .withParam("currency", currency)
+                .method(METHOD_GET_CURRENCY)
+                .withParam(PARAM_CURRENCY, currency)
                 .build();
         return client.sendRequest(request);
     }
@@ -30,7 +32,7 @@ public class HitBtcMarketService implements MarketService {
     @Override
     public Response<JsonElement> getCurrencies() throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getCurrencies")
+                .method(METHOD_GET_CURRENCIES)
                 .build();
         return client.sendRequest(request);
     }
@@ -38,8 +40,8 @@ public class HitBtcMarketService implements MarketService {
     @Override
     public Response<JsonElement> getSymbol(String symbol) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getSymbol")
-                .withParam("symbol", symbol)
+                .method(METHOD_GET_SYMBOL)
+                .withParam(PARAM_SYMBOL, symbol)
                 .build();
         return client.sendRequest(request);
     }
@@ -47,7 +49,7 @@ public class HitBtcMarketService implements MarketService {
     @Override
     public Response<JsonElement> getSymbols() throws IOException {
         Request<JsonObject> request = new RequestBuilder()
-                .method("getSymbols")
+                .method(METHOD_GET_SYMBOLS)
                 .build();
         return client.sendRequest(request);
     }
