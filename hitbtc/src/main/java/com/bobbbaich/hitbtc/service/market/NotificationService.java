@@ -10,7 +10,7 @@ public interface NotificationService {
 
     Response<JsonElement> unsubscribeTicker(String symbol) throws IOException;
 
-    Response<JsonElement> subscribeCandles(String symbol) throws IOException;
+    Response<JsonElement> subscribeCandles(String symbol, String period) throws IOException;
 
-    Response<JsonElement> unsubscribeCandles(String symbol) throws IOException;
+    Response<JsonElement> unsubscribeCandles(String symbol, String period) throws IOException;
 }

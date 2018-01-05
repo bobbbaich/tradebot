@@ -1,4 +1,4 @@
-package com.bobbbaich.hitbtc.service.market;
+package com.bobbbaich.hitbtc.service.market.impl;
 
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;

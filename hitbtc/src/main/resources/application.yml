@@ -16,9 +16,9 @@ spring:
     job:
       enabled: false
 ##---Loggin Properties---
-#logging:
-#  level:
-#    com.bobbbaich: DEBUG
+logging:
+  level:
+    com.bobbbaich: DEBUG
 #  pattern:
 #    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow} - %clr(%-4relative [%thread] %-5level %logger{35}){cyan} - %msg%n"
 

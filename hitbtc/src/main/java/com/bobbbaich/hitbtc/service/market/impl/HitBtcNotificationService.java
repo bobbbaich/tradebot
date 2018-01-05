@@ -1,7 +1,6 @@
 package com.bobbbaich.hitbtc.service.market.impl;
 
 import com.bobbbaich.hitbtc.service.market.NotificationService;
-import com.bobbbaich.hitbtc.service.market.RequestBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,6 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class HitBtcNotificationService implements NotificationService {
-
-
     private JsonRpcClient client;
 
     @Override
@@ -40,19 +37,21 @@ public class HitBtcNotificationService implements NotificationService {
     }
 
     @Override
-    public Response<JsonElement> subscribeCandles(String symbol) throws IOException {
+    public Response<JsonElement> subscribeCandles(String symbol, String period) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
                 .method("subscribeCandles")
                 .withParam("symbol", symbol)
+                .withParam("period", period)
                 .build();
         return client.sendRequest(request);
     }
 
     @Override
-    public Response<JsonElement> unsubscribeCandles(String symbol) throws IOException {
+    public Response<JsonElement> unsubscribeCandles(String symbol, String period) throws IOException {
         Request<JsonObject> request = new RequestBuilder()
                 .method("unsubscribeCandles")
                 .withParam("symbol", symbol)
+                .withParam("period", period)
                 .build();
         return client.sendRequest(request);
     }

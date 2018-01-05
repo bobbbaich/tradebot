@@ -40,7 +40,7 @@ public class PendingRequests {
     public void handleResponse(Response<JsonElement> response) {
         SettableFuture<Response<JsonElement>> responseFuture;
 
-        if (response.getId() != null) {
+        if (response.getId() != null && pendingRequests.containsKey(response.getId())) {
             responseFuture = pendingRequests.remove(response.getId());
 
             if (responseFuture == null) {
@@ -49,10 +49,6 @@ public class PendingRequests {
                 log.warn("Received response {} with an id not registered as pending request. Maybe the request timed out", response);
             } else {
                 responseFuture.set(response);
-            }
-        } else {
-            if (response.getResult() != null) {
-                log.warn("Notification: {}", response);
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.bobbbaich.hitbtc.service.market.impl;
 
 import com.bobbbaich.hitbtc.service.market.MarketService;
-import com.bobbbaich.hitbtc.service.market.RequestBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
