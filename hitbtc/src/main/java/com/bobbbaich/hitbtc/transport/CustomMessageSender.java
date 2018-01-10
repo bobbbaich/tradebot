@@ -17,7 +17,6 @@ public class CustomMessageSender {
     private Queue queue;
 
     public void send(Request<JsonObject> data) {
-
         this.template.convertAndSend(queue.getName(), data);
         log.debug("Message Sent: {}", data.getParams());
     }

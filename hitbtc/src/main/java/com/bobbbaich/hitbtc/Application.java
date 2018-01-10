@@ -17,11 +17,11 @@ public class Application {
         ConfigurableApplicationContext run = SpringApplication.run(Application.class);
         NotificationService ns = run.getBean(NotificationService.class);
 
-//        String period = "M5";
-//        Response<JsonElement> subscribeCandles = ns.subscribeCandles("ETHBTC", period);
+        String period = "M30";
+        Response<JsonElement> subscribeCandles = ns.subscribeCandles("ETHBTC", period);
 //        log.debug("Thread.sleep(10000);");
 //        Thread.sleep(10000);
-//        Response<JsonElement> unsubscribeCandles = ns.unsubscribeCandles("ETHBTC", period);
+//        Response<JsonElement> unsubscribeCandles = ns.unsubscribeCandles("BTCUSDT", period);
 //        log.debug("Thread.sleep(20000);");
 //
 //        Thread.sleep(20000);
@@ -31,7 +31,7 @@ public class Application {
 //        Thread.sleep(10000);
 //        Response<JsonElement> unsubscribeCandles2 = ns.unsubscribeCandles("ETHUSD", period);
 
-        Response<JsonElement> ethbtc = ns.subscribeTicker("ETHBTC");
-        log.debug("Thread.sleep(10000);");
+//        Response<JsonElement> subscribeTicker = ns.subscribeTicker("ETHBTC");
+//        Response<JsonElement> unsubscribeTicker = ns.unsubscribeTicker("ETHBTC");
     }
 }
