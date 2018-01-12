@@ -1,5 +1,8 @@
 package com.bobbbaich.hitbtc.transport;
 
+import com.bobbbaich.hitbtc.model.Candle;
+import com.bobbbaich.hitbtc.model.Ticker;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,57 +15,68 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Named;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 
 @Slf4j
 @Service
 public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
+    private static final String RPC_METHOD_PARAM_DATA = "data";
 
+    private Gson gson;
     private CustomMessageSender messageSender;
 
     @JsonRpcMethod
-    public synchronized void snapshotCandles(@Named Session session, @Named("data") Request<JsonObject> data) {
-        log.debug("snapshotCandles");
-        log.debug("data: ", data.getParams());
+    public void snapshotCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
         JsonObject params = data.getParams();
-        JsonArray data1 = params.get("data").getAsJsonArray();
+        JsonArray jsonCandles = params.get(RPC_METHOD_PARAM_DATA).getAsJsonArray();
 
-
-        try {
-
-            FileWriter fw = new FileWriter("open.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            StringBuffer stringBuffer = new StringBuffer();
-            for (JsonElement jsonElement : data1) {
-                String open = jsonElement.getAsJsonObject().get("open").getAsString();
-                stringBuffer.append(open);
-                stringBuffer.append("\n");
-            }
-            bw.write(stringBuffer.toString());
-            //Closing BufferedWriter Stream
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (JsonElement jsonCandle : jsonCandles) {
+            sendItem(jsonCandle, Candle.class);
         }
-
     }
 
     @JsonRpcMethod
-    public synchronized void updateCandles(@Named Session session, @Named("data") Request<JsonObject> data) {
-        log.debug("updateCandles");
-        log.debug("data: ", data.getParams());
+    public void updateCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
+        sendItem(data.getParams(), Candle.class);
     }
 
     @JsonRpcMethod
-    public synchronized void ticker(@Named Session session, @Named("data") Request<JsonObject> data) {
-        log.debug("@JsonRpcMethod -> 'ticker' - data: {}", data.getParams());
-        messageSender.send(data);
+    public void ticker(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
+        sendItem(data.getParams(), Ticker.class);
+    }
+
+    private <T> void sendItem(JsonElement json, Class<T> clazz) {
+        T item = gson.fromJson(json, clazz);
+        messageSender.send(item);
     }
 
     @Autowired
     public void setMessageSender(CustomMessageSender messageSender) {
         this.messageSender = messageSender;
     }
+
+    @Autowired
+    public void setGson(Gson gson) {
+        this.gson = gson;
+    }
+
+    //        JsonObject params = data.getParams();
+//        JsonArray data1 = params.get(RPC_METHOD_PARAM_DATA).getAsJsonArray();
+//
+//
+//        try {
+//
+//            FileWriter fw = new FileWriter("open.txt", true);
+//            BufferedWriter bw = new BufferedWriter(fw);
+//            StringBuffer stringBuffer = new StringBuffer();
+//            for (JsonElement jsonElement : data1) {
+//                String open = jsonElement.getAsJsonObject().get("open").getAsString();
+//                stringBuffer.append(open);
+//                stringBuffer.append("\n");
+//            }
+//            bw.write(stringBuffer.toString());
+//            //Closing BufferedWriter Stream
+//            bw.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 }

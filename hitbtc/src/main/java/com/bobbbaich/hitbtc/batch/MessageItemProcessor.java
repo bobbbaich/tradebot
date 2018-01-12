@@ -1,17 +1,16 @@
 package com.bobbbaich.hitbtc.batch;
 
-import com.google.gson.JsonObject;
+import com.bobbbaich.hitbtc.model.Ticker;
 import lombok.extern.slf4j.Slf4j;
-import org.kurento.jsonrpc.message.Request;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MessageItemProcessor implements ItemProcessor<Request<JsonObject>, String> {
+public class MessageItemProcessor implements ItemProcessor<Ticker, String> {
     @Override
-    public String process(Request<JsonObject> item) throws Exception {
-        log.debug("process item: {}", item.getParams());
+    public String process(Ticker ticker) throws Exception {
+        log.debug("process item: {}", ticker);
         return null;
     }
 }

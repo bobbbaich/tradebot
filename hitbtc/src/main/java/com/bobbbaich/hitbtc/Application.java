@@ -1,7 +1,6 @@
 package com.bobbbaich.hitbtc;
 
 import com.bobbbaich.hitbtc.service.market.NotificationService;
-import com.bobbbaich.hitbtc.transport.CustomMessageSender;
 import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.message.Response;
@@ -17,8 +16,8 @@ public class Application {
         ConfigurableApplicationContext run = SpringApplication.run(Application.class);
         NotificationService ns = run.getBean(NotificationService.class);
 
-        String period = "M30";
-        Response<JsonElement> subscribeCandles = ns.subscribeCandles("ETHBTC", period);
+//        String period = "M30";
+//        Response<JsonElement> subscribeCandles = ns.subscribeCandles("ETHBTC", period);
 //        log.debug("Thread.sleep(10000);");
 //        Thread.sleep(10000);
 //        Response<JsonElement> unsubscribeCandles = ns.unsubscribeCandles("BTCUSDT", period);
@@ -31,7 +30,8 @@ public class Application {
 //        Thread.sleep(10000);
 //        Response<JsonElement> unsubscribeCandles2 = ns.unsubscribeCandles("ETHUSD", period);
 
-//        Response<JsonElement> subscribeTicker = ns.subscribeTicker("ETHBTC");
-//        Response<JsonElement> unsubscribeTicker = ns.unsubscribeTicker("ETHBTC");
+        Response<JsonElement> subscribeTicker = ns.subscribeTicker("ETHBTC");
+        Thread.sleep(20000);
+        Response<JsonElement> unsubscribeTicker = ns.unsubscribeTicker("ETHBTC");
     }
 }

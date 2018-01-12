@@ -1,8 +1,6 @@
 package com.bobbbaich.hitbtc.transport;
 
-import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.kurento.jsonrpc.message.Request;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,12 @@ public class CustomMessageSender {
 
     private Queue queue;
 
-    public void send(Request<JsonObject> data) {
+    public <T> void send(T data) {
         this.template.convertAndSend(queue.getName(), data);
-        log.debug("Message Sent: {}", data.getParams());
+    }
+
+    public <T> void send(T item, Class<T> clazz) {
+        send(item);
     }
 
     @Autowired

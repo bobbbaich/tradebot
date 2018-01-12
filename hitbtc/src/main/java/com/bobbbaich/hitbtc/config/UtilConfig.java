@@ -8,9 +8,12 @@ import org.springframework.context.annotation.Scope;
 
 @Configuration
 public class UtilConfig {
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
     @Bean
-    @Scope("prototype")
     public Gson gson() {
-        return new GsonBuilder().create();
+        return new GsonBuilder()
+                .setDateFormat(DATE_FORMAT)
+                .create();
     }
 }

@@ -1,5 +1,6 @@
 package com.bobbbaich.hitbtc.config;
 
+import com.bobbbaich.hitbtc.model.Ticker;
 import com.google.gson.JsonObject;
 import org.kurento.jsonrpc.message.Request;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -36,9 +37,9 @@ public class BatchConfig {
     }
 
     @Bean
-    protected Step step1(ItemReader<Request<JsonObject>> reader, ItemProcessor<Request<JsonObject>, String> processor) {
+    protected Step step1(ItemReader<Ticker> reader, ItemProcessor<Ticker, String> processor) {
         return steps.get("step1")
-                .<Request<JsonObject>, String>chunk(5)
+                .<Ticker, String>chunk(5)
                 .reader(reader)
                 .processor(processor)
                 .build();
@@ -46,7 +47,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemReader<Request<JsonObject>> itemReader(AmqpTemplate amqpTemplate) {
+    public ItemReader<Ticker> itemReader(AmqpTemplate amqpTemplate) {
         return new AmqpItemReader<>(amqpTemplate);
     }
 }
