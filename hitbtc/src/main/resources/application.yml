@@ -15,9 +15,15 @@ spring:
       enabled: true
     job:
       enabled: false
+  rabbitmq:
+    dynamic: true
+    cache:
+      connection:
+        mode: channel
 ##---Loggin Properties---
 logging:
   level:
+    org.springframework.http.converter: DEBUG
     com.bobbbaich: DEBUG
 #  pattern:
 #    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow} - %clr(%-4relative [%thread] %-5level %logger{35}){cyan} - %msg%n"

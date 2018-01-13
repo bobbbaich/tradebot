@@ -16,31 +16,31 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableRabbit
 @EnableScheduling
 public class RabbitConfig {
-
-    public static final String TRADE_TEST_QUEUE = "trade_test_queue";
-    public static final String TRADE_TEST_EXCHANGE = "trade_test_exchange";
+    private static final String DEFAULT_QUEUE = "queue.default";
+    private static final String DEFAULT_EXCHANGE = "exchange.default";
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter jsonMessageConverter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setQueue(TRADE_TEST_QUEUE);
-
         rabbitTemplate.setMessageConverter(jsonMessageConverter);
+        rabbitTemplate.setQueue(DEFAULT_QUEUE);
+        rabbitTemplate.setExchange(DEFAULT_EXCHANGE);
+
         return rabbitTemplate;
     }
 
     @Bean
-    public Queue queue() {
-        return new Queue(TRADE_TEST_QUEUE, false);
+    public Queue defaultQueue() {
+        return new Queue(DEFAULT_QUEUE, false);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(TRADE_TEST_EXCHANGE);
+    public TopicExchange defaultExchange() {
+        return new TopicExchange(DEFAULT_EXCHANGE);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(TRADE_TEST_QUEUE);
+    public Binding defaultBinding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(DEFAULT_QUEUE);
     }
 }

@@ -2,9 +2,8 @@ package com.bobbbaich.hitbtc.transport;
 
 import com.bobbbaich.hitbtc.model.Candle;
 import com.bobbbaich.hitbtc.model.Ticker;
+import com.bobbbaich.hitbtc.transport.rabbit.MessageProducer;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.JsonRpcMethod;
@@ -13,6 +12,7 @@ import org.kurento.jsonrpc.TypeDefaultJsonRpcHandler;
 import org.kurento.jsonrpc.message.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.inject.Named;
 
@@ -20,37 +20,38 @@ import javax.inject.Named;
 @Service
 public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     private static final String RPC_METHOD_PARAM_DATA = "data";
+    private static final String RPC_METHOD_PARAM_SYMBOL = "symbol";
 
     private Gson gson;
-    private CustomMessageSender messageSender;
+    private MessageProducer messageSender;
 
     @JsonRpcMethod
     public void snapshotCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        JsonObject params = data.getParams();
-        JsonArray jsonCandles = params.get(RPC_METHOD_PARAM_DATA).getAsJsonArray();
-
-        for (JsonElement jsonCandle : jsonCandles) {
-            sendItem(jsonCandle, Candle.class);
-        }
+        sendItem(data, Candle.class);
     }
 
     @JsonRpcMethod
     public void updateCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        sendItem(data.getParams(), Candle.class);
+        sendItem(data, Candle.class);
     }
 
     @JsonRpcMethod
     public void ticker(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        sendItem(data.getParams(), Ticker.class);
+        sendItem(data, Ticker.class);
     }
 
-    private <T> void sendItem(JsonElement json, Class<T> clazz) {
-        T item = gson.fromJson(json, clazz);
-        messageSender.send(item);
+    private <T> void sendItem(Request<JsonObject> request, Class<T> clazz) {
+        Assert.notNull(request, "Param 'request' cannot be null!");
+        JsonObject params = request.getParams();
+
+        T item = gson.fromJson(params, clazz);
+        String symbol = params.get(RPC_METHOD_PARAM_SYMBOL).getAsString();
+
+        messageSender.sendTo(item, symbol, request.getMethod());
     }
 
     @Autowired
-    public void setMessageSender(CustomMessageSender messageSender) {
+    public void setMessageSender(MessageProducer messageSender) {
         this.messageSender = messageSender;
     }
 
@@ -58,25 +59,4 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     public void setGson(Gson gson) {
         this.gson = gson;
     }
-
-    //        JsonObject params = data.getParams();
-//        JsonArray data1 = params.get(RPC_METHOD_PARAM_DATA).getAsJsonArray();
-//
-//
-//        try {
-//
-//            FileWriter fw = new FileWriter("open.txt", true);
-//            BufferedWriter bw = new BufferedWriter(fw);
-//            StringBuffer stringBuffer = new StringBuffer();
-//            for (JsonElement jsonElement : data1) {
-//                String open = jsonElement.getAsJsonObject().get("open").getAsString();
-//                stringBuffer.append(open);
-//                stringBuffer.append("\n");
-//            }
-//            bw.write(stringBuffer.toString());
-//            //Closing BufferedWriter Stream
-//            bw.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 }

@@ -48,6 +48,7 @@ public class BatchConfig {
 
     @Bean
     public ItemReader<Ticker> itemReader(AmqpTemplate amqpTemplate) {
+
         return new AmqpItemReader<>(amqpTemplate);
     }
 }

@@ -1,4 +1,4 @@
-package com.bobbbaich.hitbtc.transport;
+package com.bobbbaich.hitbtc.transport.rabbit;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;

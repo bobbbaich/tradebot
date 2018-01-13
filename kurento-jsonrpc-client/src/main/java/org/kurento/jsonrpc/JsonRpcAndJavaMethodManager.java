@@ -169,7 +169,7 @@ public class JsonRpcAndJavaMethodManager {
                     return returnParams;
                 } else if (Request.class.isAssignableFrom((Class<?>) genericMap.getRawType())
                         && (genericMap.getActualTypeArguments()[0] == JsonObject.class)) {
-                    return new Request<>(null, params);
+                    return new Request<>(m.getName(), params);
                 }
             }
         }
