@@ -17,10 +17,7 @@
 
 package org.kurento.jsonrpc;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.thoughtworks.paranamer.AnnotationParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import org.kurento.jsonrpc.message.Request;

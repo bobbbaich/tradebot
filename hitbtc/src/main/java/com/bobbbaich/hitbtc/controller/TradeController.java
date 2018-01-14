@@ -22,8 +22,8 @@ public class TradeController {
 
     @PostMapping
     public ResponseEntity<String> analyse(@RequestBody Symbol symbol) throws IOException {
-//        notificationService.subscribeCandles(symbol.getId(), "M30");
-        notificationService.subscribeTicker(symbol.getId());
+//        notificationService.subscribeTicker(symbol.getId());
+        notificationService.subscribeCandles(symbol.getId(), "M30");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

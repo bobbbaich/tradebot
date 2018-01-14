@@ -25,6 +25,7 @@
     </properties>
 
     <dependencies>
+        <!--JSON-RPC 2.0-->
         <dependency>
             <groupId>org.kurento</groupId>
             <artifactId>kurento-jsonrpc-client</artifactId>

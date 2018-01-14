@@ -4,6 +4,8 @@ import com.bobbbaich.hitbtc.model.Candle;
 import com.bobbbaich.hitbtc.model.Ticker;
 import com.bobbbaich.hitbtc.transport.rabbit.MessageProducer;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.JsonRpcMethod;
@@ -44,10 +46,19 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
         Assert.notNull(request, "Param 'request' cannot be null!");
         JsonObject params = request.getParams();
 
-        T item = gson.fromJson(params, clazz);
+        Assert.notNull(request, "Param 'params' cannot be null!");
         String symbol = params.get(RPC_METHOD_PARAM_SYMBOL).getAsString();
+        JsonArray items = params.getAsJsonArray(RPC_METHOD_PARAM_DATA);
 
-        messageSender.sendTo(item, symbol, request.getMethod());
+        if (items != null) {
+            for (JsonElement jsonItem : items) {
+                T item = gson.fromJson(jsonItem, clazz);
+                messageSender.sendTo(item, symbol, request.getMethod());
+            }
+        } else {
+            T item = gson.fromJson(params, clazz);
+            messageSender.sendTo(item, symbol, request.getMethod());
+        }
     }
 
     @Autowired
