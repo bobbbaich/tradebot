@@ -5,7 +5,9 @@ import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -14,15 +16,27 @@ public class RabbitCache {
     private static final String QUEUE_PATTERN = "queue.%s.%s";
     private static final String EXCHANGE_PATTERN = "exchange.%s";
 
-    private Map<String, Queue> AMQP_QUEUES = new ConcurrentHashMap<>();
-    private Map<String, Exchange> AMQP_EXCHANGES = new ConcurrentHashMap<>();
+    private Map<String, Queue> queues = new ConcurrentHashMap<>();
+    private Map<String, Exchange> exchanges = new ConcurrentHashMap<>();
 
     private AmqpAdmin amqpAdmin;
 
-    Queue getQueue(String symbol, String method) {
+    public Set<String> getQueuesNames() {
+        return queues.keySet();
+    }
+
+    public Set<Queue> getQueues() {
+        return new HashSet<>(queues.values());
+    }
+
+    public Set<Exchange> getExchanges() {
+        return new HashSet<>(exchanges.values());
+    }
+
+    public Queue getQueue(String symbol, String method) {
         String queueName = String.format(QUEUE_PATTERN, symbol, method);
-        if (AMQP_QUEUES.containsKey(queueName)) {
-            return AMQP_QUEUES.get(queueName);
+        if (queues.containsKey(queueName)) {
+            return queues.get(queueName);
         }
 
         return createQueue(symbol, queueName);
@@ -31,7 +45,7 @@ public class RabbitCache {
     private Queue createQueue(String symbol, String queueName) {
         Queue queue = QueueBuilder
                 .nonDurable(queueName).build();
-        AMQP_QUEUES.put(queueName, queue);
+        queues.put(queueName, queue);
         amqpAdmin.declareQueue(queue);
         bind(symbol, queue);
 
@@ -40,8 +54,8 @@ public class RabbitCache {
 
     Exchange getExchange(String symbol) {
         String exchangeName = String.format(EXCHANGE_PATTERN, symbol);
-        if (AMQP_EXCHANGES.containsKey(exchangeName)) {
-            return AMQP_EXCHANGES.get(exchangeName);
+        if (exchanges.containsKey(exchangeName)) {
+            return exchanges.get(exchangeName);
         }
 
         return createExchange(symbol, exchangeName);
@@ -51,7 +65,7 @@ public class RabbitCache {
         Exchange exchange = ExchangeBuilder
                 .topicExchange(exchangeName).build();
         amqpAdmin.declareExchange(exchange);
-        AMQP_EXCHANGES.put(symbol, exchange);
+        exchanges.put(symbol, exchange);
 
         return exchange;
     }

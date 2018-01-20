@@ -17,6 +17,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import static com.bobbbaich.hitbtc.config.UtilConfig.DATE_FORMAT;
 
 @Slf4j
 @Component
@@ -47,6 +51,8 @@ public class GsonMessageConverter extends AbstractJsonMessageConverter {
     public GsonMessageConverter(String... trustedPackages) {
         this(new ObjectMapper(), trustedPackages);
         this.jsonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        this.jsonObjectMapper.setDateFormat(dateFormat);
     }
 
     /**

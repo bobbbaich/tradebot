@@ -1,16 +1,16 @@
 package com.bobbbaich.hitbtc.batch;
 
-import com.bobbbaich.hitbtc.model.Ticker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MessageItemProcessor implements ItemProcessor<Ticker, String> {
+public class MessageProcessor<I, O> implements ItemProcessor<I, O> {
+
     @Override
-    public String process(Ticker ticker) throws Exception {
-        log.debug("process item: {}", ticker);
+    public O process(I item) throws Exception {
+        log.debug("received item: {}", item);
         return null;
     }
 }
