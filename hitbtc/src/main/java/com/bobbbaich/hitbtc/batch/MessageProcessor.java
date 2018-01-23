@@ -11,6 +11,6 @@ public class MessageProcessor<I, O> implements ItemProcessor<I, O> {
     @Override
     public O process(I item) throws Exception {
         log.debug("received item: {}", item);
-        return null;
+        return (O) item;
     }
 }

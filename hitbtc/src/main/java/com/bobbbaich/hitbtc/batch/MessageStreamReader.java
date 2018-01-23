@@ -2,10 +2,6 @@ package com.bobbbaich.hitbtc.batch;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +11,12 @@ import org.springframework.util.Assert;
 @Component
 @StepScope
 public class MessageStreamReader<T> extends AbstractItemStreamItemReader<T> {
-    private String queue;
-    private final AmqpTemplate amqpTemplate;
+    private static final String JOB_PARAMETER_QUEUE = "#{jobParameters[queue]}";
 
-    @Value("#{jobParameters[queue]}")
+    private final AmqpTemplate amqpTemplate;
+    private String queue;
+
+    @Value(JOB_PARAMETER_QUEUE)
     public void setQueue(String queue) {
         this.queue = queue;
     }
@@ -31,7 +29,7 @@ public class MessageStreamReader<T> extends AbstractItemStreamItemReader<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public T read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public T read() {
         Assert.hasLength(queue, "Queue cannot be null or empty!");
         return (T) amqpTemplate.receiveAndConvert(queue);
     }
