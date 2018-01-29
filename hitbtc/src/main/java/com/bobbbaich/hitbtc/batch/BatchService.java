@@ -18,7 +18,8 @@ import org.springframework.util.Assert;
 import java.util.Date;
 import java.util.Set;
 
-import static com.bobbbaich.hitbtc.config.BatchConfig.JOB_AMQP_CONSUME;
+import static com.bobbbaich.hitbtc.config.batch.BatchConstants.JOB_AMQP_CONSUME_TICKER;
+
 
 @Slf4j
 @Service
@@ -35,7 +36,7 @@ public class BatchService {
     @Scheduled(fixedDelay = 1000)
     public void consumeMessages() {
         try {
-            Job job = jobRegistry.getJob(JOB_AMQP_CONSUME);
+            Job job = jobRegistry.getJob(JOB_AMQP_CONSUME_TICKER);
 
             run(job);
         } catch (NoSuchJobException e) {

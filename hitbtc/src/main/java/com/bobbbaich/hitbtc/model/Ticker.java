@@ -1,10 +1,12 @@
 package com.bobbbaich.hitbtc.model;
 
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
 @Data
+@Document(collection = "tickers")
 public class Ticker {
     private Double ask;//: 0.054464,
     private Double bid;//: 0.054463,

@@ -20,9 +20,15 @@ public class TradeController {
 
     private NotificationService notificationService;
 
-    @PostMapping
+    @PostMapping("/candle/subscribe")
     public ResponseEntity<String> subscribeCandles(@RequestBody Symbol symbol) throws IOException {
         notificationService.subscribeCandles(symbol.getId(), "M30");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/ticker/subscribe")
+    public ResponseEntity<String> subscribeTicker(@RequestBody Symbol symbol) throws IOException {
+        notificationService.subscribeTicker(symbol.getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

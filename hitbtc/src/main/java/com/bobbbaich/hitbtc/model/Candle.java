@@ -15,4 +15,5 @@ public class Candle {
     private double volume;//: 380.750,
     private double volumeQuote;//: 20.844237223
     private Date timestamp;//: 2017-10-19T15:00:00.000Z,
+    private String symbol;
 }

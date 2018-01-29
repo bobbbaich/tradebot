@@ -1,8 +1,10 @@
 package com.bobbbaich.hitbtc.model;
 
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Document(collection = "symbols")
 public class Symbol {
     private String id;
     private String symbol;
