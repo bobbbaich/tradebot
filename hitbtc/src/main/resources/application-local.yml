@@ -1,10 +1,10 @@
 #LOCAL profile configuration
-spring:
-  datasource:
-      url: jdbc:postgresql://localhost:5432/postgres
-      username: postgres
-      password: 123123
-      driver-class-name: org.postgresql.Driver
+#spring:
+#  datasource:
+#      url: jdbc:postgresql://localhost:5432/postgres
+#      username: postgres
+#      password: 123123
+#      driver-class-name: org.postgresql.Driver
   data:
     mongodb:
       uri:  mongodb://127.0.0.1:27017/trade

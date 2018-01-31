@@ -4,20 +4,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
 public class MessageProducer {
     private RabbitCache cache;
     private RabbitTemplate template;
+    private Map<String, CorrelationData> correlationDatas = new HashMap<>();
 
-    public <T> void sendTo(T data, String symbol, String method) {
-        Queue queue = cache.getQueue(symbol, method);
-        Exchange exchange = cache.getExchange(symbol);
+    public <T> void send(T data, String symbol, String method, Class<T> clazz) {
+        Queue queue = cache.getQueue(method, clazz);
+        Exchange exchange = cache.getExchange(clazz);
 
-        this.template.convertAndSend(exchange.getName(), queue.getName(), data);
+        CorrelationData correlationData = getCorrelationData(symbol);
+        template.convertAndSend(exchange.getName(), queue.getName(), data, correlationData);
+    }
+
+    private CorrelationData getCorrelationData(String symbol) {
+        if (correlationDatas.containsKey(symbol)) {
+            return correlationDatas.get(symbol);
+        }
+        CorrelationData correlationData = new CorrelationData(symbol);
+        correlationDatas.put(symbol, correlationData);
+
+        return correlationData;
     }
 
     @Autowired

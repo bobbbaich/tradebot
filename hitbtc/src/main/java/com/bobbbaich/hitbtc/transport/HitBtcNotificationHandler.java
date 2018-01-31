@@ -7,12 +7,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.JsonRpcMethod;
 import org.kurento.jsonrpc.Session;
 import org.kurento.jsonrpc.TypeDefaultJsonRpcHandler;
 import org.kurento.jsonrpc.message.Request;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -20,12 +20,13 @@ import javax.inject.Named;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     private static final String RPC_METHOD_PARAM_DATA = "data";
     private static final String RPC_METHOD_PARAM_SYMBOL = "symbol";
 
-    private Gson gson;
-    private MessageProducer messageSender;
+    private final Gson gson;
+    private final MessageProducer producer;
 
     @JsonRpcMethod
     public void snapshotCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
@@ -44,6 +45,7 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
 
     private <T> void sendItem(Request<JsonObject> request, Class<T> clazz) {
         Assert.notNull(request, "Param 'request' cannot be null!");
+        String method = request.getMethod();
         JsonObject params = request.getParams();
 
         Assert.notNull(request, "Param 'params' cannot be null!");
@@ -53,21 +55,11 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
         if (items != null) {
             for (JsonElement jsonItem : items) {
                 T item = gson.fromJson(jsonItem, clazz);
-                messageSender.sendTo(item, symbol, request.getMethod());
+                producer.send(item, symbol, method, clazz);
             }
         } else {
             T item = gson.fromJson(params, clazz);
-            messageSender.sendTo(item, symbol, request.getMethod());
+            producer.send(item, symbol, method, clazz);
         }
-    }
-
-    @Autowired
-    public void setMessageSender(MessageProducer messageSender) {
-        this.messageSender = messageSender;
-    }
-
-    @Autowired
-    public void setGson(Gson gson) {
-        this.gson = gson;
     }
 }

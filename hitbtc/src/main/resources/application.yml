@@ -4,33 +4,15 @@
 spring:
   profiles:
     active: local
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-        ddl-auto: create-drop
-  batch:
-    initializer:
-      enabled: true
-    job:
-      enabled: false
   rabbitmq:
     dynamic: true
     cache:
       connection:
         mode: channel
+    listener:
+      simple:
+        auto-startup: false
 ##---Loggin Properties---
 logging:
   level:
-    org.springframework.http.converter: DEBUG
     com.bobbbaich: DEBUG
-#  pattern:
-#    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){yellow} - %clr(%-4relative [%thread] %-5level %logger{35}){cyan} - %msg%n"
-
-hibernate:
-  dialect: org.hibernate.dialect.PostgreSQL9Dialect
-  show_sql: true
-  batch-size: 20
-  hbm2ddl-auto: create-drop
-  current-session-context-class: org.springframework.orm.hibernate5.SpringSessionContext
