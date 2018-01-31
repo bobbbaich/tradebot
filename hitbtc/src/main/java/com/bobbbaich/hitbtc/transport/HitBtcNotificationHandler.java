@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.inject.Named;
+import java.util.function.Supplier;
 
 @Slf4j
 @Service
@@ -29,17 +30,17 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     private final MessageProducer producer;
 
     @JsonRpcMethod
-    public void snapshotCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
+    public void snapshotCandles(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
         sendItem(data, Candle.class);
     }
 
     @JsonRpcMethod
-    public void updateCandles(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
+    public void updateCandles(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
         sendItem(data, Candle.class);
     }
 
     @JsonRpcMethod
-    public void ticker(@Named Session session, @Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
+    public void ticker(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
         sendItem(data, Ticker.class);
     }
 

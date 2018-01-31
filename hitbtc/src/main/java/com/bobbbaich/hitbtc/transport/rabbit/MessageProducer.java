@@ -16,7 +16,7 @@ import java.util.Map;
 public class MessageProducer {
     private RabbitCache cache;
     private RabbitTemplate template;
-    private Map<String, CorrelationData> correlationDatas = new HashMap<>();
+    private Map<String, CorrelationData> correlationData = new HashMap<>();
 
     public <T> void send(T data, String symbol, String method, Class<T> clazz) {
         Queue queue = cache.getQueue(method, clazz);
@@ -27,11 +27,11 @@ public class MessageProducer {
     }
 
     private CorrelationData getCorrelationData(String symbol) {
-        if (correlationDatas.containsKey(symbol)) {
-            return correlationDatas.get(symbol);
+        if (correlationData.containsKey(symbol)) {
+            return correlationData.get(symbol);
         }
         CorrelationData correlationData = new CorrelationData(symbol);
-        correlationDatas.put(symbol, correlationData);
+        this.correlationData.put(symbol, correlationData);
 
         return correlationData;
     }

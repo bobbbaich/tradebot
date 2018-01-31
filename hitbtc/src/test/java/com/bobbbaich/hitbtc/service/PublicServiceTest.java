@@ -1,5 +1,6 @@
-package com.bobbbaich.hitbtc.service.market;
+package com.bobbbaich.hitbtc.service;
 
+import com.bobbbaich.hitbtc.service.market.MarketService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
