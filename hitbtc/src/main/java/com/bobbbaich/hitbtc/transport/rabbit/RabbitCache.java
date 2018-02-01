@@ -3,6 +3,8 @@ package com.bobbbaich.hitbtc.transport.rabbit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -12,49 +14,73 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class RabbitCache {
-    private static final String QUEUE_PATTERN = "queue.%s.%s";
     private static final String EXCHANGE_PATTERN = "exchange.%s";
-
     private final AmqpAdmin amqpAdmin;
 
     private Map<String, Queue> queues = new ConcurrentHashMap<>();
-    private Map<Class, Exchange> exchanges = new ConcurrentHashMap<>();
+    private Map<String, Exchange> exchanges = new ConcurrentHashMap<>();
 
-    public <T> Queue getQueue(String method, Class<T> clazz) {
-        String queueName = getQueueName(clazz, method);
+    @Value("${queue.snapshotCandles}")
+    public String SNAPSHOT_CANDLES;
+    @Value("${queue.updateCandles}")
+    public String UPDATE_CANDLES;
+    @Value("${queue.ticker}")
+    public String TICKER;
+
+
+    @Bean
+    public Queue snapshotQueue() {
+        Queue queue = new Queue(SNAPSHOT_CANDLES, false);
+        queues.put(SNAPSHOT_CANDLES, queue);
+        return queue;
+    }
+
+    @Bean
+    public Queue updateQueue() {
+        Queue queue = new Queue(UPDATE_CANDLES, false);
+        queues.put(UPDATE_CANDLES, queue);
+        return queue;
+    }
+
+    @Bean
+    public Queue tickerQueue() {
+        Queue queue = new Queue(TICKER, false);
+        queues.put(TICKER, queue);
+        return queue;
+    }
+
+    public Queue getQueue(String queueName) {
         if (queues.containsKey(queueName)) {
             return queues.get(queueName);
         }
 
-        return createQueue(queueName, clazz);
+        return createQueue(queueName);
     }
 
-    public <T> Exchange getExchange(Class<T> clazz) {
-        if (exchanges.containsKey(clazz)) {
-            return exchanges.get(clazz);
+    public Exchange getExchange(String queueName) {
+        String exchangeName = getExchangeNameByQueueName(queueName);
+        if (exchanges.containsKey(exchangeName)) {
+            return exchanges.get(exchangeName);
         }
 
-        return createExchange(clazz);
+        return createExchange(exchangeName);
     }
 
-    private <T> Queue createQueue(String queueName, Class<T> clazz) {
+    private Queue createQueue(String queueName) {
         Queue queue = QueueBuilder
                 .nonDurable(queueName).build();
+        Exchange exchange = getExchange(queueName);
         queues.put(queueName, queue);
         amqpAdmin.declareQueue(queue);
-
-        Exchange exchange = getExchange(clazz);
         bind(queue, exchange);
-
         return queue;
     }
 
-    private <T> Exchange createExchange(Class<T> clazz) {
-        String exchangeName = getExchangeName(clazz);
+    private Exchange createExchange(String exchangeName) {
         Exchange exchange = ExchangeBuilder
                 .topicExchange(exchangeName).build();
         amqpAdmin.declareExchange(exchange);
-        exchanges.put(clazz, exchange);
+        exchanges.put(exchangeName, exchange);
 
         return exchange;
     }
@@ -65,11 +91,8 @@ public class RabbitCache {
         amqpAdmin.declareBinding(binding);
     }
 
-    public <T> String getQueueName(Class<T> clazz, String method) {
-        return String.format(QUEUE_PATTERN, clazz.getSimpleName(), method);
+    public String getExchangeNameByQueueName(String queueName) {
+        return String.format(EXCHANGE_PATTERN, queueName);
     }
 
-    public <T> String getExchangeName(Class<T> clazz) {
-        return String.format(EXCHANGE_PATTERN, clazz.getSimpleName());
-    }
 }

@@ -13,6 +13,9 @@ import org.kurento.jsonrpc.JsonRpcMethod;
 import org.kurento.jsonrpc.Session;
 import org.kurento.jsonrpc.TypeDefaultJsonRpcHandler;
 import org.kurento.jsonrpc.message.Request;
+import org.springframework.amqp.core.Queue;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -29,24 +32,32 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     private final Gson gson;
     private final MessageProducer producer;
 
+    @Value("${queue.snapshotCandles}")
+    public String SNAPSHOT_CANDLES;
+    @Value("${queue.updateCandles}")
+    public String UPDATE_CANDLES;
+    @Value("${queue.ticker}")
+    public String TICKER;
+
+
+
     @JsonRpcMethod
     public void snapshotCandles(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        sendItem(data, Candle.class);
+        sendItem(data, Candle.class, SNAPSHOT_CANDLES);
     }
 
     @JsonRpcMethod
     public void updateCandles(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        sendItem(data, Candle.class);
+        sendItem(data, Candle.class, UPDATE_CANDLES);
     }
 
     @JsonRpcMethod
     public void ticker(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
-        sendItem(data, Ticker.class);
+        sendItem(data, Ticker.class, TICKER);
     }
 
-    private <T> void sendItem(Request<JsonObject> request, Class<T> clazz) {
+    private <T> void sendItem(Request<JsonObject> request, Class<T> clazz, String queueName) {
         Assert.notNull(request, "Param 'request' cannot be null!");
-        String method = request.getMethod();
         JsonObject params = request.getParams();
 
         Assert.notNull(request, "Param 'params' cannot be null!");
@@ -56,11 +67,11 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
         if (items != null) {
             for (JsonElement jsonItem : items) {
                 T item = gson.fromJson(jsonItem, clazz);
-                producer.send(item, symbol, method, clazz);
+                producer.send(item, symbol, queueName);
             }
         } else {
             T item = gson.fromJson(params, clazz);
-            producer.send(item, symbol, method, clazz);
+            producer.send(item, symbol, queueName);
         }
     }
 }

@@ -18,12 +18,10 @@ public class MessageProducer {
     private RabbitTemplate template;
     private Map<String, CorrelationData> correlationData = new HashMap<>();
 
-    public <T> void send(T data, String symbol, String method, Class<T> clazz) {
-        Queue queue = cache.getQueue(method, clazz);
-        Exchange exchange = cache.getExchange(clazz);
-
+    public <T> void send(T data, String symbol, String queueName) {
+        Queue queue = cache.getQueue(queueName);
         CorrelationData correlationData = getCorrelationData(symbol);
-        template.convertAndSend(exchange.getName(), queue.getName(), data, correlationData);
+        template.convertAndSend(queue.getName(), data, correlationData);
     }
 
     private CorrelationData getCorrelationData(String symbol) {

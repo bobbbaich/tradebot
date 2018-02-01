@@ -9,10 +9,16 @@ spring:
     cache:
       connection:
         mode: channel
-    listener:
-      simple:
-        auto-startup: false
+#    listener:
+#      simple:
+#        auto-startup: false
 ##---Loggin Properties---
 logging:
   level:
     com.bobbbaich: DEBUG
+server:
+  8080
+queue:
+  snapshotCandles: snapshotCandle${server}
+  updateCandles: updateCandle${server}
+  ticker: ticker${server}
