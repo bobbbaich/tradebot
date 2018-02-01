@@ -2,22 +2,22 @@ package com.bobbbaich.hitbtc.service.listener;
 
 import com.bobbbaich.hitbtc.model.Candle;
 import com.bobbbaich.hitbtc.model.Ticker;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ActionListener {
+
+    private final MongoTemplate mongo;
 
     @RabbitListener(queues = {"${queue.ticker}"})
     public void processTicker(Ticker ticker) {
-        log.debug("{}", ticker);
+        mongo.insert(ticker);
     }
 
     @RabbitListener(queues = "${queue.snapshotCandles}")
