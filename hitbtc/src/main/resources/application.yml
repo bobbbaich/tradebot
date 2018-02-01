@@ -19,6 +19,6 @@ logging:
 server:
   8080
 queue:
-  snapshotCandles: snapshotCandle${server}
-  updateCandles: updateCandle${server}
-  ticker: ticker${server}
+  snapshotCandles: ${server}.snapshotCandle
+  updateCandles: ${server}.updateCandle
+  ticker: ${server}.ticker

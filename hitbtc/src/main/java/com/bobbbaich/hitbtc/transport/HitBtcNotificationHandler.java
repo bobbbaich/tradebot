@@ -10,17 +10,13 @@ import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kurento.jsonrpc.JsonRpcMethod;
-import org.kurento.jsonrpc.Session;
 import org.kurento.jsonrpc.TypeDefaultJsonRpcHandler;
 import org.kurento.jsonrpc.message.Request;
-import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.inject.Named;
-import java.util.function.Supplier;
 
 @Slf4j
 @Service
@@ -38,8 +34,6 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
     public String UPDATE_CANDLES;
     @Value("${queue.ticker}")
     public String TICKER;
-
-
 
     @JsonRpcMethod
     public void snapshotCandles(@Named(RPC_METHOD_PARAM_DATA) Request<JsonObject> data) {
@@ -66,12 +60,17 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
 
         if (items != null) {
             for (JsonElement jsonItem : items) {
-                T item = gson.fromJson(jsonItem, clazz);
+                T item = getItemWithSymbol(jsonItem, symbol, clazz);
                 producer.send(item, symbol, queueName);
             }
         } else {
-            T item = gson.fromJson(params, clazz);
+            T item = getItemWithSymbol(params, symbol, clazz);
             producer.send(item, symbol, queueName);
         }
+    }
+
+    private <T> T getItemWithSymbol(JsonElement jsonItem, String symbol, Class<T> clazz) {
+        jsonItem.getAsJsonObject().addProperty(RPC_METHOD_PARAM_SYMBOL, symbol);
+        return gson.fromJson(jsonItem, clazz);
     }
 }

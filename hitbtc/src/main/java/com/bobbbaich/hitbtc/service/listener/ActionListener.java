@@ -15,10 +15,6 @@ import javax.annotation.PostConstruct;
 @Component
 public class ActionListener {
 
-    @PostConstruct
-    public void postConstruct(){
-        log.debug("ActionListener");
-    }
     @RabbitListener(queues = {"${queue.ticker}"})
     public void processTicker(Ticker ticker) {
         log.debug("{}", ticker);
@@ -34,4 +30,3 @@ public class ActionListener {
         log.debug("{}", candle);
     }
 }
-
