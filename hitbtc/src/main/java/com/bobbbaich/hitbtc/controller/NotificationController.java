@@ -16,7 +16,7 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequestMapping("/trade")
-public class TradeController {
+public class NotificationController {
 
     private NotificationService notificationService;
 
@@ -26,9 +26,21 @@ public class TradeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/candle/unsubscribe")
+    public ResponseEntity<String> unsubscribeCandles(@RequestBody Symbol symbol) throws IOException {
+        notificationService.unsubscribeCandles(symbol.getId(), "M30");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("/ticker/subscribe")
     public ResponseEntity<String> subscribeTicker(@RequestBody Symbol symbol) throws IOException {
         notificationService.subscribeTicker(symbol.getId());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/ticker/unsubscribe")
+    public ResponseEntity<String> unsubscribeTicker(@RequestBody Symbol symbol) throws IOException {
+        notificationService.unsubscribeTicker(symbol.getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
