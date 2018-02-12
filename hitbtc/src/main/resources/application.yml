@@ -16,9 +16,7 @@ spring:
 logging:
   level:
     com.bobbbaich: DEBUG
-server:
-  8080
 queue:
-  snapshotCandles: ${server}.snapshotCandle
-  updateCandles: ${server}.updateCandle
-  ticker: ${server}.ticker
+  snapshotCandles: ${server.address}.snapshotCandle
+  updateCandles: ${server.address}.updateCandle
+  ticker: ${server.address}.ticker

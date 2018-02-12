@@ -18,4 +18,6 @@ public class Ticker {
     private Double volumeQuote;//: 1832.687530809,
     private Date timestamp;//: 2017-10-19T15:45:44.941Z,
     private String symbol;//: ETHBTC
+
+    private MovingAverage movingAverage;
 }
