@@ -1,6 +1,9 @@
 package com.bobbbaich.hitbtc.model;
 
 import lombok.Data;
+import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -8,6 +11,8 @@ import java.util.Date;
 @Data
 @Document(collection = "tickers")
 public class Ticker {
+    @Id
+    private String id;
     private Double ask;//: 0.054464,
     private Double bid;//: 0.054463,
     private Double last;//: 0.054463,
@@ -18,6 +23,6 @@ public class Ticker {
     private Double volumeQuote;//: 1832.687530809,
     private Date timestamp;//: 2017-10-19T15:45:44.941Z,
     private String symbol;//: ETHBTC
-
+    @DBRef(lazy = true)
     private MovingAverage movingAverage;
 }

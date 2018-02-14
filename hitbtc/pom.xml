@@ -52,6 +52,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
+        <!--&lt;!&ndash; Spring Boot Redis &ndash;&gt;-->
+        <!--<dependency>-->
+        <!--https://dzone.com/articles/enabling-caching-in-mongodb-database-with-redis-us-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-redis</artifactId>-->
+        <!--</dependency>-->
         <!-- Spring Reactor-->
         <dependency>
             <groupId>io.projectreactor</groupId>
