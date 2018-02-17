@@ -1,10 +1,9 @@
 package com.bobbbaich.hitbtc.repository;
 
-import com.bobbbaich.hitbtc.model.Ticker;
+import com.bobbbaich.hitbtc.model.MovingAverage;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TickerRepository extends MongoRepository<Ticker, String> {
-    Ticker findTickerByMovingAverageId(String id);
+public interface MovingAverageRepository extends MongoRepository<MovingAverage, String> {
 }

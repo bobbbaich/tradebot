@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class MessageProducer {
     private RabbitTemplate template;
 
-    public <T> void send(T data, String symbol, String queueName) {
+    public <T> void send(T data, String queueName) {
         template.convertAndSend(queueName, data);
     }
 

@@ -2,7 +2,9 @@ package com.bobbbaich.hitbtc.service.reactor;
 
 import com.bobbbaich.hitbtc.model.MovingAverage;
 import com.bobbbaich.hitbtc.model.Ticker;
+import com.bobbbaich.hitbtc.repository.MovingAverageRepository;
 import com.bobbbaich.hitbtc.service.analysis.MovingAverageService;
+import com.bobbbaich.hitbtc.service.analysis.TrendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +15,6 @@ import reactor.spring.context.annotation.Consumer;
 import reactor.spring.context.annotation.Selector;
 import reactor.spring.context.annotation.SelectorType;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -28,8 +29,9 @@ import static java.util.stream.Collectors.toCollection;
 @RequiredArgsConstructor
 public class MovingAverageProcessor {
     private final EventBus eventBus;
+    private final TrendService trendService;
     private final MovingAverageService movingAverageService;
-
+    private final MovingAverageRepository repository;
     //  Ticker map where key is s symbol
     private Map<String, Double> exponentialAvgBySymbol = new ConcurrentHashMap<>();
 
@@ -43,22 +45,22 @@ public class MovingAverageProcessor {
         Integer period = prices.size();
         Double lastPrice = prices.peek();
 
-        Date timestamp = lastTicker.getTimestamp();
         Double simpleAvg = movingAverageService.simpleAvg(prices);
-        Double weightedAvg = movingAverageService.weightedAvg(prices);
         Double prevExponential = getPrevExponential(lastTicker, simpleAvg);
         Double exponentialAvg = movingAverageService.exponentialAvg(lastPrice, prevExponential, period);
+        Double weightedAvg = movingAverageService.weightedAvg(prices);
 
         updateExponentialAvg(lastTicker, exponentialAvg);
 
-        MovingAverage movingAverage = MovingAverage.builder()
-                .simple(simpleAvg)
-                .weighted(weightedAvg)
-                .exponential(exponentialAvg)
-                .period(period).timestamp(timestamp)
-                .build();
+        MovingAverage movingAverage = lastTicker.getMovingAverage();
+        movingAverage.setPeriod(period);
+        movingAverage.setSimple(simpleAvg);
+        movingAverage.setWeighted(weightedAvg);
+        movingAverage.setExponential(exponentialAvg);
 
-        log.debug("movingAverage: {}", movingAverage);
+        repository.save(movingAverage);
+
+        trendService.movingAvgSignal(movingAverage);
     }
 
     private LinkedList<Double> getPrices(Queue<Ticker> tickers, ToDoubleFunction<Ticker> doubleFunction) {

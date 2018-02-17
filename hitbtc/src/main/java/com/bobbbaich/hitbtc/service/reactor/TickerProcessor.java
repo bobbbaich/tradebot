@@ -32,12 +32,12 @@ public class TickerProcessor {
     //  Ticker map where key is s symbol
     private Map<String, Queue<Ticker>> tickersBySymbol = new ConcurrentHashMap<>();
 
-    @Transactional
-    @Selector(value = SELECTOR_TICKER_TYPE, type = SelectorType.TYPE)
-    public void serialize(Event<Ticker> event) {
-        Ticker ticker = event.getData();
-        repository.insert(ticker);
-    }
+//    @Transactional
+//    @Selector(value = SELECTOR_TICKER_TYPE, type = SelectorType.TYPE)
+//    public void serialize(Event<Ticker> event) {
+//        Ticker ticker = event.getData();
+//        repository.insert(ticker);
+//    }
 
     @Transactional
     @Selector(value = SELECTOR_TICKER_TYPE, type = SelectorType.TYPE)

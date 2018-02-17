@@ -61,11 +61,11 @@ public class HitBtcNotificationHandler extends TypeDefaultJsonRpcHandler {
         if (items != null) {
             for (JsonElement jsonItem : items) {
                 T item = getItemWithSymbol(jsonItem, symbol, clazz);
-                producer.send(item, symbol, queueName);
+                producer.send(item, queueName);
             }
         } else {
             T item = getItemWithSymbol(params, symbol, clazz);
-            producer.send(item, symbol, queueName);
+            producer.send(item, queueName);
         }
     }
 
