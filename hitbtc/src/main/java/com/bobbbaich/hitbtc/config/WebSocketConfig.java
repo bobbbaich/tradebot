@@ -19,11 +19,4 @@ public class WebSocketConfig {
         client.setServerRequestHandler(handler);
         return client;
     }
-
-    @Bean(name = "hitBtcAuthorizedClient")
-    public JsonRpcClient hitBtcAuthorizedClient(JsonRpcHandler<?> handler) {
-        JsonRpcClient client = new JsonRpcClientNettyWebSocket(API_WS_HITBTC);
-        client.setServerRequestHandler(handler);
-        return client;
-    }
 }
